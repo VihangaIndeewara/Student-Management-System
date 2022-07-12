@@ -62,6 +62,8 @@ public class StudentFormController {
             txtContact.setText(newValue.getContact());
             txtAddress.setText(newValue.getAddress());
             txtNic.setText(newValue.getNic());
+        }else {
+            btnSave.setText("Save");
         }
     }
 
@@ -92,6 +94,13 @@ public class StudentFormController {
     }
 
     public void btnSaveOnAction(ActionEvent actionEvent) {
+        if (btnSave.getText().equals("Save")) {
+            saveStudent();
+        }else if (btnSave.getText().equals("Update")){
+            updateStudent();
+        }
+    }
+    public void saveStudent(){
         Student s = new Student(txtStudentId.getText(), txtName.getText(), txtEmail.getText(), txtContact.getText(), txtAddress.getText(), txtNic.getText());
 
         try {
@@ -99,16 +108,42 @@ public class StudentFormController {
 
             if (b) {
                 new Alert(Alert.AlertType.CONFIRMATION, "Saved!!!").show();
+                loadAllData();
                 clear();
             }
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-
+            new Alert(Alert.AlertType.ERROR,e.getMessage()).show();
         }
     }
 
-    public void btnDeleteOnAction (ActionEvent actionEvent){
+    public void updateStudent(){
+        try {
+            boolean b = CrudUtil.executeUpdate("UPDATE Student SET student_name=?,email=?,contact=?,address=?,nic=? WHERE student_id=?",  txtName.getText(), txtEmail.getText(), txtContact.getText(), txtAddress.getText(), txtNic.getText(),txtStudentId.getText());
+            if (b) {
+                new Alert(Alert.AlertType.CONFIRMATION, "Updated!!!").show();
+                loadAllData();
+                clear();
+            }
 
+        }catch (ClassNotFoundException | SQLException e) {
+             e.printStackTrace();
+          }
+
+
+    }
+
+    public void btnDeleteOnAction (ActionEvent actionEvent){
+        try {
+        boolean b = CrudUtil.executeUpdate("DELETE FROM Student WHERE student_id=?", txtStudentId.getText());
+            if (b) {
+                new Alert(Alert.AlertType.CONFIRMATION, "Deleted!!!").show();
+                clear();
+                loadAllData();
+                btnDelete.setDisable(true);
+            }
+        }catch (ClassNotFoundException | SQLException e) {
+               e.printStackTrace();
+            }
     }
 
     public void clear(){
@@ -120,4 +155,9 @@ public class StudentFormController {
         txtNic.clear();
     }
 
+    public void btnNewOnAction(ActionEvent actionEvent) {
+        clear();
+        txtStudentId.requestFocus();
+        btnSave.setText("Save");
+    }
 }
